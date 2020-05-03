@@ -1,7 +1,18 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { shade } from 'polished';
 import BgImg from '../../Assets/sign-in-background.png';
 
+const LeftAnimation = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-50px)
+  },
+  to {
+
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
 export const Container = styled.div`
   height: 100vh;
   align-items: stretch;
@@ -15,6 +26,17 @@ export const Content = styled.div`
 
   width: 100%;
   max-width: 700px;
+`;
+
+export const AnimatedContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  place-content: center;
+  width: 100%;
+  max-width: 700px;
+
+  animation: ${LeftAnimation} 1s;
 
   > a {
     color: #ff9000;

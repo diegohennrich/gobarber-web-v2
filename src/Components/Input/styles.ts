@@ -52,6 +52,7 @@ export const Container = styled.div<ContainerProps>`
     }
   }
 
+
   svg {
     margin-right: 15px;
   }

@@ -37,17 +37,13 @@ export const AuthProvider: FC = ({ children }) => {
   });
 
   const signIn = useCallback(async ({ email, password }) => {
-    try {
-      const response = await api.post('/login', { email, password });
-      const { token, user } = response.data;
+    const response = await api.post('/login', { email, password });
+    const { token, user } = response.data;
 
-      localStorage.setItem('@GoBarber:token', token);
-      localStorage.setItem('@GoBarber:user', JSON.stringify(user));
+    localStorage.setItem('@GoBarber:token', token);
+    localStorage.setItem('@GoBarber:user', JSON.stringify(user));
 
-      setData({ token, user });
-    } catch (e) {
-      console.log('erro no login: ', e);
-    }
+    setData({ token, user });
   }, []);
 
   const signOut = useCallback((): void => {

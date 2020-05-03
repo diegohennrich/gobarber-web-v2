@@ -1,6 +1,18 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { shade } from 'polished';
 import BgImg from '../../Assets/sign-up-background.png';
+
+const RightAnimation = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(50px)
+  },
+  to {
+
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
 
 export const Container = styled.div`
   height: 100vh;
@@ -15,6 +27,18 @@ export const Content = styled.div`
 
   width: 100%;
   max-width: 700px;
+`;
+
+export const AnimatedContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  place-content: center;
+
+  width: 100%;
+  max-width: 700px;
+
+  animation: ${RightAnimation} 1s;
 
   > a {
     color: #f4ede8;
@@ -57,6 +81,7 @@ export const Content = styled.div`
     }
   }
 `;
+
 export const Background = styled.div`
   flex: 1;
   background: url(${BgImg}) no-repeat center;
