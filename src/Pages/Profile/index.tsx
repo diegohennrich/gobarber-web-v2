@@ -1,6 +1,6 @@
-import React, { FC, useCallback, useRef } from 'react';
+import React, { FC, useCallback, useRef, useEffect } from 'react';
 import { FiArrowLeft, FiUser, FiMail, FiLock, FiCamera } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
@@ -19,14 +19,17 @@ import { useAuth } from '../../Hooks/Auth';
 interface CadastroData {
   name: string;
   email: string;
-  password: string;
+  old_password?: string;
+  password?: string;
+  password_confirmation?: string;
 }
 
 const Profile: FC = () => {
   const { addToast } = useToast();
-  const { user } = useAuth();
-
+  const { user, updateUser } = useAuth();
+  console.log('user: ', user);
   const formRef = useRef<FormHandles>(null);
+  const history = useHistory();
 
   const handleSumbit = useCallback(
     async (data: CadastroData) => {
@@ -37,33 +40,78 @@ const Profile: FC = () => {
           email: Yup.string()
             .required('E-mail obrigatório')
             .email('E-mail inválido'),
-          password: Yup.string().min(6, 'Mínimo 6 dígitos'),
+          old_password: Yup.string(),
+          password: Yup.string().when('old_password', {
+            is: (val) => !!val.length,
+            then: Yup.string().required('Campo obrigatório'),
+            otherwise: Yup.string(),
+          }),
+          password_confirmation: Yup.string()
+            .when('old_password', {
+              is: (val) => !!val.length,
+              then: Yup.string().required('Campo obrigatório'),
+              otherwise: Yup.string(),
+            })
+            .oneOf([Yup.ref('password'), null], 'As senhas não são iguais'),
         });
 
         await schema.validate(data, { abortEarly: false });
 
-        await api.post('/user', data);
+        const {
+          name,
+          email,
+          old_password,
+          password,
+          password_confirmation,
+        } = data;
 
+        const payload = {
+          name,
+          email,
+          ...(old_password
+            ? {
+                old_password,
+                password,
+                password_confirmation,
+              }
+            : {}),
+        };
+
+        const response = await api.put('/profile', payload);
+
+        updateUser(response.data.user);
+
+        history.push('/dashboard');
         addToast({
           type: 'success',
-          title: 'Cadastrado com sucesso!',
-          description: 'Você já pode fazer logon no GoBarber!',
+          title: 'Atualizado com sucesso!',
+          description: 'Seus dados foram atualizados.',
         });
       } catch (err) {
+        console.log('deu erro');
         if (err instanceof Yup.ValidationError) {
           const errors = GetValidationErrors(err);
           formRef.current?.setErrors(errors);
+          return;
         }
+
+        console.log('err', err.response.data);
 
         addToast({
           type: 'error',
-          title: 'Erro',
-          description: 'Erro ao cadastrar',
+          title: 'Erro ao atualizar',
+          description: err.response.data.message,
         });
       }
     },
-    [addToast]
+    [addToast, updateUser, history]
   );
+
+  // useEffect(() => {
+  //   if (formRef.current) {
+  //     formRef.current.setData({ name: user.name, email: user.email });
+  //   }
+  // }, [formRef, user.email, user.name]);
   return (
     <Container>
       <header>
@@ -74,7 +122,11 @@ const Profile: FC = () => {
         </div>
       </header>
       <Content>
-        <Form onSubmit={handleSumbit} ref={formRef}>
+        <Form
+          onSubmit={handleSumbit}
+          initialData={{ name: user.name, email: user.email }}
+          ref={formRef}
+        >
           <Avatar>
             <AvatarImg src={user.avatar_url} />
             <button type="button">

@@ -11,6 +11,7 @@ interface User {
   name: string;
   id: string;
   avatar_url: string;
+  email: string;
 }
 
 interface AuthData {
@@ -27,6 +28,7 @@ interface AuthProps {
   user: User;
   signIn(credentials: SignInProps): Promise<void>;
   signOut(): void;
+  updateUser(user: User): void;
 }
 const AuthContext = createContext<AuthProps>({} as AuthProps);
 
@@ -62,8 +64,19 @@ export const AuthProvider: FC = ({ children }) => {
     setData({} as AuthData);
   }, []);
 
+  const updateUser = useCallback((user: User): void => {
+    const token = localStorage.getItem('@GoBarber:token');
+
+    if (!token) return;
+    localStorage.setItem('@GoBarber:user', JSON.stringify(user));
+
+    setData({ token, user });
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user: data.user, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ user: data.user, signIn, signOut, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

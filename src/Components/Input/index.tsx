@@ -27,7 +27,7 @@ const Input: FC<InputProps> = ({
   const [isFilled, setIsFilled] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const { fieldName, registerField, error } = useField(name);
+  const { fieldName, registerField, error, defaultValue } = useField(name);
 
   useEffect(() => {
     registerField({
@@ -55,6 +55,7 @@ const Input: FC<InputProps> = ({
     >
       {Icon && <Icon size={20} />}
       <input
+        defaultValue={defaultValue}
         ref={inputRef}
         {...rest}
         onFocus={handleFocus}

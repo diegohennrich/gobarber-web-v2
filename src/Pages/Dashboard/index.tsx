@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useState, useEffect, useMemo } from 'react';
-import { isToday, format, parseISO, getHours, isAfter } from 'date-fns';
+import { isToday, format, parseISO, isAfter } from 'date-fns';
 import { Link } from 'react-router-dom';
 import ptBR from 'date-fns/locale/pt-BR';
 import { FiPower, FiClock } from 'react-icons/fi';
